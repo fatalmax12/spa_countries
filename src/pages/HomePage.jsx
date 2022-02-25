@@ -8,21 +8,40 @@ import List from "../components/List";
 import Card from "../components/Card";
 
 const HomePage = ({countries, setCountries}) => {
-  
+  const [filtredCountries, setFiltredCountries] = useState(countries);
   
   const navigate = useNavigate();
-  console.log(countries);
+  
+  const handleSearch = (search, region) => {
+    let data = [...countries];
+
+    if (region) {
+      data = data.filter((c) => c.region.includes(region));
+    }
+
+    if (search) {
+      data = data.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
+    }
+
+    setFiltredCountries(data);
+  };
 
   useEffect(() => {
     if (!countries.length) 
       axios.get(ALL_COUNTRIES).then(({ data }) => setCountries(data));
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+      handleSearch();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countries]);
 
   return (
     <>
-      <Controls />
+      <Controls onSearch={handleSearch} />
       <List>
-        {countries.map((c) => {
+        {filtredCountries.map((c) => {
           const countryInfo = {
             img: c.flags.png,
             name: c.name,
